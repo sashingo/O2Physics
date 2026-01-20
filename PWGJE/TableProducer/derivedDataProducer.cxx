@@ -253,7 +253,7 @@ struct JetDerivedDataProducerTask {
 
   void processCollisions(soa::Join<aod::Collisions, aod::EvSels, aod::FV0Mults, aod::FT0Mults, aod::CentFV0As, aod::CentFT0As, aod::CentFT0Cs, aod::CentFT0Ms, aod::CentFT0CVariant1s>::iterator const& collision, soa::Join<aod::BCs, aod::BcSels, aod::Timestamps> const& bcs, aod::FT0s const&, aod::FV0As const&, aod::FDDs const&)
   {
-    auto bc = collision.bc_as<soa::Join<aod::BCs, aod::Timestamps>>();
+    auto bc = collision.bc_as<soa::Join<aod::BCs, aod::BcSels, aod::Timestamps>>();
     if (config.includeHadronicRate) {
       if (runNumber != bc.runNumber()) {
         runNumber = bc.runNumber();
@@ -937,7 +937,7 @@ struct JetDerivedDataProducerTask {
           }
         }
         auto pdgParticle = pdgDatabase->GetParticle(particle.pdgCode());
-        products.jDielectronMcsTable(products.jDielectronMcCollisionsTable.lastIndex(), particle.pt(), particle.eta(), particle.phi(), particle.y(), particle.e(), pdgParticle->Mass(), particle.pdgCode(), particle.statusCode(), particle.flags(), jetdqutilities::setDielectronParticleDecayBit(particles, particle), RecoDecay::getCharmHadronOrigin(particles, particle, false)); // Todo: should the last thing be false?
+        products.jDielectronMcsTable(products.jDielectronMcCollisionsTable.lastIndex(), particle.pt(), particle.eta(), particle.phi(), particle.y(), particle.e(), pdgParticle->Mass(), particle.vx(), particle.vy(), particle.vz(), particle.vt(), particle.pdgCode(), particle.statusCode(), particle.flags(), jetdqutilities::setDielectronParticleDecayBit(particles, particle), RecoDecay::getCharmHadronOrigin(particles, particle, false)); // Todo: should the last thing be false?
         products.jDielectronMcIdsTable(mcCollision.globalIndex(), particle.globalIndex(), mothersId, daughtersId);
         products.JDielectronMcRCollDummysTable(false);
       }
