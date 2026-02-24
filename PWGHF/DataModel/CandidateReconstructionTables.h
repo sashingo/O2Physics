@@ -44,6 +44,9 @@ DECLARE_SOA_COLUMN(TpcTofNSigmaPi, tpcTofNSigmaPi, float); //! Combined NSigma s
 DECLARE_SOA_COLUMN(TpcTofNSigmaKa, tpcTofNSigmaKa, float); //! Combined NSigma separation with the TPC & TOF detectors for kaon
 DECLARE_SOA_COLUMN(TpcTofNSigmaPr, tpcTofNSigmaPr, float); //! Combined NSigma separation with the TPC & TOF detectors for proton
 DECLARE_SOA_COLUMN(TpcTofNSigmaDe, tpcTofNSigmaDe, float); //! Combined NSigma separation with the TPC & TOF detectors for deuteron
+DECLARE_SOA_COLUMN(TpcTofNSigmaTr, tpcTofNSigmaTr, float); //! Combined NSigma separation with the TPC & TOF detectors for triton
+DECLARE_SOA_COLUMN(TpcTofNSigmaHe, tpcTofNSigmaHe, float); //! Combined NSigma separation with the TPC & TOF detectors for helium
+DECLARE_SOA_COLUMN(TpcTofNSigmaAl, tpcTofNSigmaAl, float); //! Combined NSigma separation with the TPC & TOF detectors for alpha
 } // namespace pid_tpc_tof_static_full
 
 namespace pid_tpc_tof_static_tiny
@@ -55,6 +58,9 @@ DECLARE_SOA_COLUMN(TpcTofNSigmaPi, tpcTofNSigmaPi, float); //! Combined NSigma s
 DECLARE_SOA_COLUMN(TpcTofNSigmaKa, tpcTofNSigmaKa, float); //! Combined NSigma separation with the TPC & TOF detectors for kaon
 DECLARE_SOA_COLUMN(TpcTofNSigmaPr, tpcTofNSigmaPr, float); //! Combined NSigma separation with the TPC & TOF detectors for proton
 DECLARE_SOA_COLUMN(TpcTofNSigmaDe, tpcTofNSigmaDe, float); //! Combined NSigma separation with the TPC & TOF detectors for deuteron
+DECLARE_SOA_COLUMN(TpcTofNSigmaTr, tpcTofNSigmaTr, float); //! Combined NSigma separation with the TPC & TOF detectors for triton
+DECLARE_SOA_COLUMN(TpcTofNSigmaHe, tpcTofNSigmaHe, float); //! Combined NSigma separation with the TPC & TOF detectors for helium
+DECLARE_SOA_COLUMN(TpcTofNSigmaAl, tpcTofNSigmaAl, float); //! Combined NSigma separation with the TPC & TOF detectors for alpha
 } // namespace pid_tpc_tof_static_tiny
 
 // Extension of per particle tables
@@ -68,9 +74,14 @@ DECLARE_SOA_TABLE(PidTpcTofFullKa, "AOD", "PIDTPCTOFFULLKA", //! Table of the TP
                   pid_tpc_tof_static_full::TpcTofNSigmaKa);
 DECLARE_SOA_TABLE(PidTpcTofFullPr, "AOD", "PIDTPCTOFFULLPR", //! Table of the TPC & TOF Combined NSigma for proton
                   pid_tpc_tof_static_full::TpcTofNSigmaPr);
-DECLARE_SOA_TABLE(PidTpcTofFullDe, "AOD", "PIDTPCTOFFULLDe", //! Table of the TPC & TOF Combined NSigma for deuteron
+DECLARE_SOA_TABLE(PidTpcTofFullDe, "AOD", "PIDTPCTOFFULLDE", //! Table of the TPC & TOF Combined NSigma for deuteron
                   pid_tpc_tof_static_full::TpcTofNSigmaDe);
-
+DECLARE_SOA_TABLE(PidTpcTofFullTr, "AOD", "PIDTPCTOFFULLTR", //! Table of the TPC & TOF Combined NSigma for triton
+                  pid_tpc_tof_static_full::TpcTofNSigmaTr);
+DECLARE_SOA_TABLE(PidTpcTofFullHe, "AOD", "PIDTPCTOFFULLHE", //! Table of the TPC & TOF Combined NSigma for helium
+                  pid_tpc_tof_static_full::TpcTofNSigmaHe);
+DECLARE_SOA_TABLE(PidTpcTofFullAl, "AOD", "PIDTPCTOFFULLAL", //! Table of the TPC & TOF Combined NSigma for alpha
+                  pid_tpc_tof_static_full::TpcTofNSigmaAl);
 // Extension of per particle tables
 DECLARE_SOA_TABLE(PidTpcTofTinyEl, "AOD", "PIDTPCTOFTINYEL", //! Table of the TPC & TOF Combined NSigma for electron
                   pid_tpc_tof_static_tiny::TpcTofNSigmaEl);
@@ -84,7 +95,12 @@ DECLARE_SOA_TABLE(PidTpcTofTinyPr, "AOD", "PIDTPCTOFTINYPR", //! Table of the TP
                   pid_tpc_tof_static_tiny::TpcTofNSigmaPr);
 DECLARE_SOA_TABLE(PidTpcTofTinyDe, "AOD", "PIDTPCTOFTINYDE", //! Table of the TPC & TOF Combined NSigma for deuteron
                   pid_tpc_tof_static_tiny::TpcTofNSigmaDe);
-
+DECLARE_SOA_TABLE(PidTpcTofTinyTr, "AOD", "PIDTPCTOFTINYTR", //! Table of the TPC & TOF Combined NSigma for triton
+                  pid_tpc_tof_static_tiny::TpcTofNSigmaTr);
+DECLARE_SOA_TABLE(PidTpcTofTinyHe, "AOD", "PIDTPCTOFTINYHE", //! Table of the TPC & TOF Combined NSigma for helium
+                  pid_tpc_tof_static_tiny::TpcTofNSigmaHe);
+DECLARE_SOA_TABLE(PidTpcTofTinyAl, "AOD", "PIDTPCTOFTINYAL", //! Table of the TPC & TOF Combined NSigma for alpha
+                  pid_tpc_tof_static_tiny::TpcTofNSigmaAl);
 // general decay properties
 namespace hf_cand
 {
@@ -181,6 +197,15 @@ DECLARE_SOA_COLUMN(NSigTpcPr2, nSigTpcPr2, float);           //! TPC nSigma for 
 DECLARE_SOA_COLUMN(NSigTpcDe0, nSigTpcDe0, float);           //! TPC nSigma for deuteron hypothesis - prong 0
 DECLARE_SOA_COLUMN(NSigTpcDe1, nSigTpcDe1, float);           //! TPC nSigma for deuteron hypothesis - prong 1
 DECLARE_SOA_COLUMN(NSigTpcDe2, nSigTpcDe2, float);           //! TPC nSigma for deuteron hypothesis - prong 2
+DECLARE_SOA_COLUMN(NSigTpcTr0, nSigTpcTr0, float);           //! TPC nSigma for triton hypothesis - prong 0
+DECLARE_SOA_COLUMN(NSigTpcTr1, nSigTpcTr1, float);           //! TPC nSigma for triton hypothesis - prong 1
+DECLARE_SOA_COLUMN(NSigTpcTr2, nSigTpcTr2, float);           //! TPC nSigma for triton hypothesis - prong 2
+DECLARE_SOA_COLUMN(NSigTpcHe0, nSigTpcHe0, float);           //! TPC nSigma for helium hypothesis - prong 0
+DECLARE_SOA_COLUMN(NSigTpcHe1, nSigTpcHe1, float);           //! TPC nSigma for helium hypothesis - prong 1
+DECLARE_SOA_COLUMN(NSigTpcHe2, nSigTpcHe2, float);           //! TPC nSigma for helium hypothesis - prong 2
+DECLARE_SOA_COLUMN(NSigTpcAl0, nSigTpcAl0, float);           //! TPC nSigma for alpha hypothesis - prong 0
+DECLARE_SOA_COLUMN(NSigTpcAl1, nSigTpcAl1, float);           //! TPC nSigma for alpha hypothesis - prong 1
+DECLARE_SOA_COLUMN(NSigTpcAl2, nSigTpcAl2, float);           //! TPC nSigma for alpha hypothesis - prong 2
 DECLARE_SOA_COLUMN(NSigTofPi0, nSigTofPi0, float);           //! TOF nSigma for pion hypothesis - prong 0
 DECLARE_SOA_COLUMN(NSigTofPi1, nSigTofPi1, float);           //! TOF nSigma for pion hypothesis - prong 1
 DECLARE_SOA_COLUMN(NSigTofPi2, nSigTofPi2, float);           //! TOF nSigma for pion hypothesis - prong 2
@@ -193,6 +218,15 @@ DECLARE_SOA_COLUMN(NSigTofPr2, nSigTofPr2, float);           //! TOF nSigma for 
 DECLARE_SOA_COLUMN(NSigTofDe0, nSigTofDe0, float);           //! TOF nSigma for deuteron hypothesis - prong 0
 DECLARE_SOA_COLUMN(NSigTofDe1, nSigTofDe1, float);           //! TOF nSigma for deuteron hypothesis - prong 1
 DECLARE_SOA_COLUMN(NSigTofDe2, nSigTofDe2, float);           //! TOF nSigma for deuteron hypothesis - prong 2
+DECLARE_SOA_COLUMN(NSigTofTr0, nSigTofTr0, float);           //! TOF nSigma for triton hypothesis - prong 0
+DECLARE_SOA_COLUMN(NSigTofTr1, nSigTofTr1, float);           //! TOF nSigma for triton hypothesis - prong 1
+DECLARE_SOA_COLUMN(NSigTofTr2, nSigTofTr2, float);           //! TOF nSigma for triton hypothesis - prong 2
+DECLARE_SOA_COLUMN(NSigTofHe0, nSigTofHe0, float);           //! TOF nSigma for helium hypothesis - prong 0
+DECLARE_SOA_COLUMN(NSigTofHe1, nSigTofHe1, float);           //! TOF nSigma for helium hypothesis - prong 1
+DECLARE_SOA_COLUMN(NSigTofHe2, nSigTofHe2, float);           //! TOF nSigma for helium hypothesis - prong 2
+DECLARE_SOA_COLUMN(NSigTofAl0, nSigTofAl0, float);           //! TOF nSigma for alpha hypothesis - prong 0
+DECLARE_SOA_COLUMN(NSigTofAl1, nSigTofAl1, float);           //! TOF nSigma for alpha hypothesis - prong 1
+DECLARE_SOA_COLUMN(NSigTofAl2, nSigTofAl2, float);           //! TOF nSigma for alpha hypothesis - prong 2
 DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaPi0, tpcTofNSigmaPi0, //! Combined NSigma separation with the TPC & TOF detectors for pion - prong 0
                            [](float tpcNSigmaPi0, float tofNSigmaPi0) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaPi0, tofNSigmaPi0); });
 DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaPi1, tpcTofNSigmaPi1, //! Combined NSigma separation with the TPC & TOF detectors for pion - prong 1
@@ -217,7 +251,24 @@ DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaDe1, tpcTofNSigmaDe1, //! Combined NSigma
                            [](float tpcNSigmaDe1, float tofNSigmaDe1) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaDe1, tofNSigmaDe1); });
 DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaDe2, tpcTofNSigmaDe2, //! Combined NSigma separation with the TPC & TOF detectors for deuteron - prong 2
                            [](float tpcNSigmaDe2, float tofNSigmaDe2) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaDe2, tofNSigmaDe2); });
-
+DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaTr0, tpcTofNSigmaTr0, //! Combined NSigma separation with the TPC & TOF detectors for triton - prong 0
+                           [](float tpcNSigmaTr0, float tofNSigmaTr0) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaTr0, tofNSigmaTr0); });
+DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaTr1, tpcTofNSigmaTr1, //! Combined NSigma separation with the TPC & TOF detectors for triton - prong 1
+                           [](float tpcNSigmaTr1, float tofNSigmaTr1) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaTr1, tofNSigmaTr1); });
+DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaTr2, tpcTofNSigmaTr2, //! Combined NSigma separation with the TPC & TOF detectors for triton - prong 2
+                           [](float tpcNSigmaTr2, float tofNSigmaTr2) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaTr2, tofNSigmaTr2); });
+DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaHe0, tpcTofNSigmaHe0, //! Combined NSigma separation with the TPC & TOF detectors for helium - prong 0
+                           [](float tpcNSigmaHe0, float tofNSigmaHe0) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaHe0, tofNSigmaHe0); });
+DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaHe1, tpcTofNSigmaHe1, //! Combined NSigma separation with the TPC & TOF detectors for helium - prong 1
+                           [](float tpcNSigmaHe1, float tofNSigmaHe1) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaHe1, tofNSigmaHe1); });
+DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaHe2, tpcTofNSigmaHe2, //! Combined NSigma separation with the TPC & TOF detectors for helium - prong 2
+                           [](float tpcNSigmaHe2, float tofNSigmaHe2) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaHe2, tofNSigmaHe2); });
+DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaAl0, tpcTofNSigmaAl0, //! Combined NSigma separation with the TPC & TOF detectors for alpha - prong 0
+                           [](float tpcNSigmaAl0, float tofNSigmaAl0) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaAl0, tofNSigmaAl0); });
+DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaAl1, tpcTofNSigmaAl1, //! Combined NSigma separation with the TPC & TOF detectors for alpha - prong 1
+                           [](float tpcNSigmaAl1, float tofNSigmaAl1) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaAl1, tofNSigmaAl1); });
+DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaAl2, tpcTofNSigmaAl2, //! Combined NSigma separation with the TPC & TOF detectors for alpha - prong 2
+                           [](float tpcNSigmaAl2, float tofNSigmaAl2) -> float { return pid_tpc_tof_utils::combineNSigma<false /*tiny*/>(tpcNSigmaAl2, tofNSigmaAl2); });
 // tiny (binned) option
 DECLARE_SOA_DYNAMIC_COLUMN(TpcTofNSigmaTinyPi0, tpcTofNSigmaTinyPi0, //! Combined NSigma separation with the TPC & TOF detectors for pion - prong 0
                            [](float tpcNSigmaPi0, float tofNSigmaPi0) -> float { return pid_tpc_tof_utils::combineNSigma<true /*tiny*/>(tpcNSigmaPi0, tofNSigmaPi0); });
@@ -767,11 +818,41 @@ DECLARE_SOA_TABLE(HfCand3Prong1PidDe, "AOD", "HFCAND3P1PIDDE", //!
 DECLARE_SOA_TABLE(HfCand3Prong2PidDe, "AOD", "HFCAND3P2PIDDE", //!
                   hf_cand::NSigTpcDe2, hf_cand::NSigTofDe2,
                   hf_cand::TpcTofNSigmaDe2<hf_cand::NSigTpcDe2, hf_cand::NSigTofDe2>);
+DECLARE_SOA_TABLE(HfCand3Prong0PidTr, "AOD", "HFCAND3P0PIDTR", //!
+                  hf_cand::NSigTpcTr0, hf_cand::NSigTofTr0,
+                  hf_cand::TpcTofNSigmaTr0<hf_cand::NSigTpcTr0, hf_cand::NSigTofTr0>);
+DECLARE_SOA_TABLE(HfCand3Prong1PidTr, "AOD", "HFCAND3P1PIDTR", //!
+                  hf_cand::NSigTpcTr1, hf_cand::NSigTofTr1,
+                  hf_cand::TpcTofNSigmaTr1<hf_cand::NSigTpcTr1, hf_cand::NSigTofTr1>);
+DECLARE_SOA_TABLE(HfCand3Prong2PidTr, "AOD", "HFCAND3P2PIDTR", //!
+                  hf_cand::NSigTpcTr2, hf_cand::NSigTofTr2,
+                  hf_cand::TpcTofNSigmaTr2<hf_cand::NSigTpcTr2, hf_cand::NSigTofTr2>);
+DECLARE_SOA_TABLE(HfCand3Prong0PidHe, "AOD", "HFCAND3P0PIDHE", //!
+                  hf_cand::NSigTpcHe0, hf_cand::NSigTofHe0,
+                  hf_cand::TpcTofNSigmaHe0<hf_cand::NSigTpcHe0, hf_cand::NSigTofHe0>);
+DECLARE_SOA_TABLE(HfCand3Prong1PidHe, "AOD", "HFCAND3P1PIDHE", //!
+                  hf_cand::NSigTpcHe1, hf_cand::NSigTofHe1,
+                  hf_cand::TpcTofNSigmaHe1<hf_cand::NSigTpcHe1, hf_cand::NSigTofHe1>);
+DECLARE_SOA_TABLE(HfCand3Prong2PidHe, "AOD", "HFCAND3P2PIDHE", //!
+                  hf_cand::NSigTpcHe2, hf_cand::NSigTofHe2,
+                  hf_cand::TpcTofNSigmaHe2<hf_cand::NSigTpcHe2, hf_cand::NSigTofHe2>);
+DECLARE_SOA_TABLE(HfCand3Prong0PidAl, "AOD", "HFCAND3P0PIDAL", //!
+                  hf_cand::NSigTpcAl0, hf_cand::NSigTofAl0,
+                  hf_cand::TpcTofNSigmaAl0<hf_cand::NSigTpcAl0, hf_cand::NSigTofAl0>);
+DECLARE_SOA_TABLE(HfCand3Prong1PidAl, "AOD", "HFCAND3P1PIDAL", //!
+                  hf_cand::NSigTpcAl1, hf_cand::NSigTofAl1,
+                  hf_cand::TpcTofNSigmaAl1<hf_cand::NSigTpcAl1, hf_cand::NSigTofAl1>);
+DECLARE_SOA_TABLE(HfCand3Prong2PidAl, "AOD", "HFCAND3P2PIDAL", //!
+                  hf_cand::NSigTpcAl2, hf_cand::NSigTofAl2,
+                  hf_cand::TpcTofNSigmaAl2<hf_cand::NSigTpcAl2, hf_cand::NSigTofAl2>);
 
 using HfCand3Prong = HfCand3ProngExt;
 using HfCand3ProngWPidPiKaPr = soa::Join<HfCand3Prong, HfCand3Prong0PidPi, HfCand3Prong0PidPr, HfCand3Prong0PidKa, HfCand3Prong1PidPi, HfCand3Prong1PidPr, HfCand3Prong1PidKa, HfCand3Prong2PidPi, HfCand3Prong2PidPr, HfCand3Prong2PidKa>;
 using HfCand3ProngWPidPiKa = soa::Join<HfCand3Prong, HfCand3Prong0PidPi, HfCand3Prong0PidKa, HfCand3Prong1PidPi, HfCand3Prong1PidKa, HfCand3Prong2PidPi, HfCand3Prong2PidKa>;
 using HfCand3ProngWPidPiKaDe = soa::Join<HfCand3Prong, HfCand3Prong0PidPi, HfCand3Prong0PidDe, HfCand3Prong0PidKa, HfCand3Prong1PidPi, HfCand3Prong1PidDe, HfCand3Prong1PidKa, HfCand3Prong2PidPi, HfCand3Prong2PidDe, HfCand3Prong2PidKa>;
+using HfCand3ProngWPidPiKaTr = soa::Join<HfCand3Prong, HfCand3Prong0PidPi, HfCand3Prong0PidTr, HfCand3Prong0PidKa, HfCand3Prong1PidPi, HfCand3Prong1PidTr, HfCand3Prong1PidKa, HfCand3Prong2PidPi, HfCand3Prong2PidTr, HfCand3Prong2PidKa>;
+using HfCand3ProngWPidPiKaHe = soa::Join<HfCand3Prong, HfCand3Prong0PidPi, HfCand3Prong0PidHe, HfCand3Prong0PidKa, HfCand3Prong1PidPi, HfCand3Prong1PidHe, HfCand3Prong1PidKa, HfCand3Prong2PidPi, HfCand3Prong2PidHe, HfCand3Prong2PidKa>;
+using HfCand3ProngWPidPiKaAl = soa::Join<HfCand3Prong, HfCand3Prong0PidPi, HfCand3Prong0PidAl, HfCand3Prong0PidKa, HfCand3Prong1PidPi, HfCand3Prong1PidAl, HfCand3Prong1PidKa, HfCand3Prong2PidPi, HfCand3Prong2PidAl, HfCand3Prong2PidKa>;
 
 DECLARE_SOA_TABLE(HfCand3ProngKF, "AOD", "HFCAND3PKF",
                   hf_cand_3prong::KfXError, hf_cand_3prong::KfYError, hf_cand_3prong::KfZError,
