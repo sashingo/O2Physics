@@ -16,49 +16,52 @@
 // when dealing with derived data.
 
 #include "PWGLF/DataModel/EPCalibrationTables.h"
-#include "PWGLF/DataModel/LFParticleIdentification.h"
 #include "PWGLF/DataModel/LFStrangenessPIDTables.h"
 #include "PWGLF/DataModel/LFStrangenessTables.h"
+#include "PWGLF/DataModel/SPCalibrationTables.h"
+#include "PWGUD/DataModel/UDTables.h"
 
-#include "Common/Core/RecoDecay.h"
-#include "Common/Core/TrackSelection.h"
-#include "Common/Core/trackUtilities.h"
+#include "Common/DataModel/Centrality.h"
+#include "Common/DataModel/EventSelection.h"
 #include "Common/DataModel/McCollisionExtra.h"
+#include "Common/DataModel/Multiplicity.h"
 #include "Common/DataModel/PIDResponseTOF.h"
 #include "Common/DataModel/PIDResponseTPC.h"
 #include "Common/DataModel/Qvectors.h"
 #include "Common/DataModel/TrackSelectionTables.h"
-#include "Common/TableProducer/PID/pidTOFBase.h"
 
-#include "CCDB/BasicCCDBManager.h"
-#include "CommonConstants/PhysicsConstants.h"
-#include "DCAFitter/DCAFitterN.h"
-#include "DataFormatsParameters/GRPMagField.h"
-#include "DataFormatsParameters/GRPObject.h"
-#include "DetectorsBase/GeometryManager.h"
-#include "DetectorsBase/Propagator.h"
-#include "Framework/ASoAHelpers.h"
-#include "Framework/AnalysisDataModel.h"
-#include "Framework/AnalysisTask.h"
-#include "Framework/O2DatabasePDGPlugin.h"
-#include "Framework/RunningWorkflowInfo.h"
-#include "Framework/StaticFor.h"
-#include "Framework/runDataProcessing.h"
-#include "ReconstructionDataFormats/Track.h"
+#include <Framework/AnalysisDataModel.h>
+#include <Framework/AnalysisHelpers.h>
+#include <Framework/AnalysisTask.h>
+#include <Framework/Array2D.h>
+#include <Framework/Configurable.h>
+#include <Framework/HistogramRegistry.h>
+#include <Framework/HistogramSpec.h>
+#include <Framework/InitContext.h>
+#include <Framework/O2DatabasePDGPlugin.h>
+#include <Framework/OutputObjHeader.h>
+#include <Framework/StaticFor.h>
+#include <Framework/runDataProcessing.h>
 
-#include <array>
+#include <TH1.h>
+#include <TH2.h>
+#include <TMathBase.h>
+#include <TPDGCode.h>
+#include <TString.h>
+
+#include <RtypesCore.h>
+
+#include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
-#include <iterator>
-#include <map>
 #include <string>
-#include <utility>
+#include <string_view>
 #include <vector>
 
 using namespace o2;
 using namespace o2::framework;
 using namespace o2::framework::expressions;
-using std::array;
 
 using TracksWithExtra = soa::Join<aod::Tracks, aod::TracksExtra, aod::pidTPCFullEl, aod::pidTPCFullPi, aod::pidTPCFullKa, aod::pidTPCFullPr, aod::pidTPCFullHe, aod::TOFEvTime, aod::TOFSignal>;
 using TracksCompleteIUMC = soa::Join<aod::TracksIU, aod::TracksExtra, aod::TracksCovIU, aod::TracksDCA, aod::McTrackLabels>;
@@ -555,8 +558,8 @@ struct strangederivedbuilder {
           }
 
           products.strangeCents(collision.centFT0M(), collision.centFT0A(),
-                                centrality, collision.centFV0A(), collision.centFT0CVariant1(),
-                                collision.centMFT(), collision.centNGlobal());
+                                centrality, collision.centFV0A(), collision.centFT0CVariant1(), collision.centFT0CVariant2(),
+                                collision.centMFT(), collision.centNGlobal(), collision.centNTPV());
           products.strangeEvSels(collision.sel8(), collision.selection_raw(),
                                  collision.multFT0A() * static_cast<float>(fillTruncationOptions.fillRawFT0A),
                                  collision.multFT0C() * static_cast<float>(fillTruncationOptions.fillRawFT0C),
@@ -590,7 +593,7 @@ struct strangederivedbuilder {
                                       timeFDDA, timeFDDC,                  // FDD info
                                       timeFV0A,                            // FV0A info
                                       timeFT0A, timeFT0C, ft0TriggerMask); // FT0 info
-        } else { // We are in Run 2
+        } else {                                                           // We are in Run 2
           products.strangeCentsRun2(collision.centRun2V0M(), collision.centRun2V0A(),
                                     collision.centRun2SPDTracklets(), collision.centRun2SPDClusters());
           products.strangeEvSelsRun2(collision.sel8(), collision.sel7(), collision.selection_raw(),
@@ -707,23 +710,23 @@ struct strangederivedbuilder {
     }
   }
 
-  void processCollisionsRun3(soa::Join<aod::Collisions, aod::FT0Mults, aod::FV0Mults, aod::FDDMults, aod::PVMults, aod::ZDCMults, aod::CentFT0Ms, aod::CentFT0As, aod::CentFT0Cs, aod::CentFV0As, aod::CentFT0CVariant1s, aod::CentNGlobals, aod::CentMFTs, aod::EvSels, aod::MultsExtra, aod::MultsGlobal> const& collisions, aod::V0Datas const& V0s, aod::CascDatas const& Cascades, aod::KFCascDatas const& KFCascades, aod::TraCascDatas const& TraCascades, soa::Join<aod::BCsWithTimestamps, aod::Run3MatchedToBCSparse> const& bcs, aod::FT0s const&, aod::Zdcs const&)
+  void processCollisionsRun3(soa::Join<aod::Collisions, aod::FT0Mults, aod::FV0Mults, aod::FDDMults, aod::PVMults, aod::ZDCMults, aod::CentFT0Ms, aod::CentFT0As, aod::CentFT0Cs, aod::CentFV0As, aod::CentFT0CVariant1s, aod::CentFT0CVariant2s, aod::CentNGlobals, aod::CentMFTs, aod::CentNTPVs, aod::EvSels, aod::MultsExtra, aod::MultsGlobal> const& collisions, aod::V0Datas const& V0s, aod::CascDatas const& Cascades, aod::KFCascDatas const& KFCascades, aod::TraCascDatas const& TraCascades, soa::Join<aod::BCsWithTimestamps, aod::Run3MatchedToBCSparse> const& bcs, aod::FT0s const&, aod::FV0As const&, aod::FDDs const&, aod::Zdcs const&)
   {
     populateCollisionTables(collisions, collisions, V0s, Cascades, KFCascades, TraCascades, bcs);
   }
 
-  void processCollisionsRun3WithUD(soa::Join<aod::Collisions, aod::FT0Mults, aod::FV0Mults, aod::FDDMults, aod::PVMults, aod::ZDCMults, aod::CentFT0Ms, aod::CentFT0As, aod::CentFT0Cs, aod::CentFV0As, aod::CentFT0CVariant1s, aod::CentNGlobals, aod::CentMFTs, aod::EvSels, aod::MultsExtra, aod::MultsGlobal> const& collisions, aod::V0Datas const& V0s, aod::CascDatas const& Cascades, aod::KFCascDatas const& KFCascades, aod::TraCascDatas const& TraCascades, soa::Join<aod::BCsWithTimestamps, aod::Run3MatchedToBCSparse> const& bcs, aod::FT0s const&, aod::Zdcs const&, UDCollisionsFull const& udCollisions)
+  void processCollisionsRun3WithUD(soa::Join<aod::Collisions, aod::FT0Mults, aod::FV0Mults, aod::FDDMults, aod::PVMults, aod::ZDCMults, aod::CentFT0Ms, aod::CentFT0As, aod::CentFT0Cs, aod::CentFV0As, aod::CentFT0CVariant1s, aod::CentFT0CVariant2s, aod::CentNGlobals, aod::CentMFTs, aod::CentNTPVs, aod::EvSels, aod::MultsExtra, aod::MultsGlobal> const& collisions, aod::V0Datas const& V0s, aod::CascDatas const& Cascades, aod::KFCascDatas const& KFCascades, aod::TraCascDatas const& TraCascades, soa::Join<aod::BCsWithTimestamps, aod::Run3MatchedToBCSparse> const& bcs, aod::FT0s const&, aod::FV0As const&, aod::FDDs const&, aod::Zdcs const&, UDCollisionsFull const& udCollisions)
   {
     populateCollisionTables(collisions, udCollisions, V0s, Cascades, KFCascades, TraCascades, bcs);
   }
 
-  void processCollisionsRun3WithMC(soa::Join<aod::Collisions, aod::FT0Mults, aod::FV0Mults, aod::FDDMults, aod::PVMults, aod::ZDCMults, aod::CentFT0Ms, aod::CentFT0As, aod::CentFT0Cs, aod::CentFV0As, aod::CentFT0CVariant1s, aod::CentNGlobals, aod::CentMFTs, aod::EvSels, aod::McCollisionLabels, aod::MultsExtra, aod::MultsGlobal> const& collisions, soa::Join<aod::V0Datas, aod::McV0Labels> const& V0s, soa::Join<aod::V0MCCores, aod::V0MCCollRefs> const& /*V0MCCores*/, soa::Join<aod::CascDatas, aod::McCascLabels> const& Cascades, aod::KFCascDatas const& KFCascades, aod::TraCascDatas const& TraCascades, soa::Join<aod::BCsWithTimestamps, aod::Run3MatchedToBCSparse> const& bcs, aod::FT0s const&, aod::Zdcs const&, soa::Join<aod::McCollisions, aod::McCollsExtra, aod::MultsExtraMC> const& mcCollisions, aod::McParticles const& mcParticles)
+  void processCollisionsRun3WithMC(soa::Join<aod::Collisions, aod::FT0Mults, aod::FV0Mults, aod::FDDMults, aod::PVMults, aod::ZDCMults, aod::CentFT0Ms, aod::CentFT0As, aod::CentFT0Cs, aod::CentFV0As, aod::CentFT0CVariant1s, aod::CentFT0CVariant2s, aod::CentNGlobals, aod::CentMFTs, aod::CentNTPVs, aod::EvSels, aod::McCollisionLabels, aod::MultsExtra, aod::MultsGlobal> const& collisions, soa::Join<aod::V0Datas, aod::McV0Labels> const& V0s, soa::Join<aod::V0MCCores, aod::V0MCCollRefs> const& /*V0MCCores*/, soa::Join<aod::CascDatas, aod::McCascLabels> const& Cascades, aod::KFCascDatas const& KFCascades, aod::TraCascDatas const& TraCascades, soa::Join<aod::BCsWithTimestamps, aod::Run3MatchedToBCSparse> const& bcs, aod::FT0s const&, aod::FV0As const&, aod::FDDs const&, aod::Zdcs const&, soa::Join<aod::McCollisions, aod::McCollsExtra, aod::MultsExtraMC> const& mcCollisions, aod::McParticles const& mcParticles)
   {
     populateMCCollisionTable(mcCollisions, mcParticles);
     populateCollisionTables(collisions, collisions, V0s, Cascades, KFCascades, TraCascades, bcs);
   }
 
-  void processCollisionsRun3WithUDWithMC(soa::Join<aod::Collisions, aod::FT0Mults, aod::FV0Mults, aod::FDDMults, aod::PVMults, aod::ZDCMults, aod::CentFT0Ms, aod::CentFT0As, aod::CentFT0Cs, aod::CentFV0As, aod::CentFT0CVariant1s, aod::CentNGlobals, aod::CentMFTs, aod::EvSels, aod::McCollisionLabels, aod::MultsExtra, aod::MultsGlobal> const& collisions, soa::Join<aod::V0Datas, aod::McV0Labels> const& V0s, soa::Join<aod::V0MCCores, aod::V0MCCollRefs> const& /*V0MCCores*/, soa::Join<aod::CascDatas, aod::McCascLabels> const& Cascades, aod::KFCascDatas const& KFCascades, aod::TraCascDatas const& TraCascades, soa::Join<aod::BCsWithTimestamps, aod::Run3MatchedToBCSparse> const& bcs, aod::FT0s const&, aod::Zdcs const&, UDCollisionsFull const& udCollisions, soa::Join<aod::McCollisions, aod::McCollsExtra, aod::MultsExtraMC> const& mcCollisions, aod::McParticles const& mcParticles)
+  void processCollisionsRun3WithUDWithMC(soa::Join<aod::Collisions, aod::FT0Mults, aod::FV0Mults, aod::FDDMults, aod::PVMults, aod::ZDCMults, aod::CentFT0Ms, aod::CentFT0As, aod::CentFT0Cs, aod::CentFV0As, aod::CentFT0CVariant1s, aod::CentFT0CVariant2s, aod::CentNGlobals, aod::CentMFTs, aod::CentNTPVs, aod::EvSels, aod::McCollisionLabels, aod::MultsExtra, aod::MultsGlobal> const& collisions, soa::Join<aod::V0Datas, aod::McV0Labels> const& V0s, soa::Join<aod::V0MCCores, aod::V0MCCollRefs> const& /*V0MCCores*/, soa::Join<aod::CascDatas, aod::McCascLabels> const& Cascades, aod::KFCascDatas const& KFCascades, aod::TraCascDatas const& TraCascades, soa::Join<aod::BCsWithTimestamps, aod::Run3MatchedToBCSparse> const& bcs, aod::FT0s const&, aod::FV0As const&, aod::FDDs const&, aod::Zdcs const&, UDCollisionsFull const& udCollisions, soa::Join<aod::McCollisions, aod::McCollsExtra, aod::MultsExtraMC> const& mcCollisions, aod::McParticles const& mcParticles)
   {
     populateMCCollisionTable(mcCollisions, mcParticles);
     populateCollisionTables(collisions, udCollisions, V0s, Cascades, KFCascades, TraCascades, bcs);

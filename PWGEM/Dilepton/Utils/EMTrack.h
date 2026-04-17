@@ -15,20 +15,24 @@
 #ifndef PWGEM_DILEPTON_UTILS_EMTRACK_H_
 #define PWGEM_DILEPTON_UTILS_EMTRACK_H_
 
-#include "Math/Vector4D.h"
+#include <Math/Vector4D.h> // IWYU pragma: keep (do not replace with Math/Vector4Dfwd.h)
+#include <Math/Vector4Dfwd.h>
+
+#include <cmath>
+#include <cstdint>
+
+#include <math.h>
 
 namespace o2::aod::pwgem::dilepton::utils
 {
 class EMTrack
 {
  public:
-  EMTrack(float pt, float eta, float phi, float mass, int8_t charge = 0, float dcaXY = 0.f, float dcaZ = 0.f, float CYY = 0, float CZY = 0, float CZZ = 0)
+  EMTrack(float pt, float eta, float phi, float /*mass*/, int8_t charge = 0, float dcaXY = 0.f, float dcaZ = 0.f, float CYY = 0, float CZY = 0, float CZZ = 0)
   {
-    fPt = pt;
+    fSigned1Pt = static_cast<float>(charge) / pt;
     fEta = eta;
     fPhi = phi;
-    fMass = mass;
-    fCharge = charge;
     fDCAxy = dcaXY;
     fDCAz = dcaZ;
     fCYY = CYY;
@@ -38,11 +42,10 @@ class EMTrack
 
   ~EMTrack() {}
 
-  float pt() const { return fPt; }
+  float pt() const { return 1.f / std::fabs(fSigned1Pt); }
   float eta() const { return fEta; }
   float phi() const { return fPhi; }
-  float mass() const { return fMass; }
-  int8_t sign() const { return fCharge; }
+  int8_t sign() const { return (fSigned1Pt > 0 ? +1 : -1); }
   float dcaXY() const { return fDCAxy; }
   float dcaZ() const { return fDCAz; }
 
@@ -50,20 +53,16 @@ class EMTrack
   float cZY() const { return fCZY; }
   float cZZ() const { return fCZZ; }
 
-  float rapidity() const { return std::log((std::sqrt(std::pow(fMass, 2) + std::pow(fPt * std::cosh(fEta), 2)) + fPt * std::sinh(fEta)) / std::sqrt(std::pow(fMass, 2) + std::pow(fPt, 2))); }
-  float p() const { return fPt * std::cosh(fEta); }
-  float px() const { return fPt * std::cos(fPhi); }
-  float py() const { return fPt * std::sin(fPhi); }
-  float pz() const { return fPt * std::sinh(fEta); }
-  float e() const { return std::hypot(fPt * std::cosh(fEta), fMass); } // e2 = p2 + m2
-  float signed1Pt() const { return fCharge * 1.f / fPt; }
+  float p() const { return 1.f / std::fabs(fSigned1Pt) * std::cosh(fEta); }
+  float px() const { return 1.f / std::fabs(fSigned1Pt) * std::cos(fPhi); }
+  float py() const { return 1.f / std::fabs(fSigned1Pt) * std::sin(fPhi); }
+  float pz() const { return 1.f / std::fabs(fSigned1Pt) * std::sinh(fEta); }
+  float signed1Pt() const { return fSigned1Pt; }
 
  protected:
-  float fPt;
+  float fSigned1Pt;
   float fEta;
   float fPhi;
-  float fMass;
-  int8_t fCharge;
   float fDCAxy;
   float fDCAz;
   float fCYY;
@@ -152,6 +151,7 @@ class EMPair : public EMTrack
  public:
   EMPair(float pt, float eta, float phi, float mass, int8_t charge = 0) : EMTrack(pt, eta, phi, mass, charge, 0, 0, 0, 0, 0)
   {
+    fMass = mass;
     fPairDCA = 999.f;
     fVPos = ROOT::Math::PtEtaPhiMVector(0, 0, 0, 0);
     fVNeg = ROOT::Math::PtEtaPhiMVector(0, 0, 0, 0);
@@ -161,6 +161,8 @@ class EMPair : public EMTrack
   }
 
   ~EMPair() {}
+  float mass() const { return fMass; }
+  float rapidity() const { return std::log((std::sqrt(std::pow(fMass, 2) + std::pow(1.f / std::fabs(fSigned1Pt) * std::cosh(fEta), 2)) + 1.f / std::fabs(fSigned1Pt) * std::sinh(fEta)) / std::sqrt(std::pow(fMass, 2) + std::pow(1.f / std::fabs(fSigned1Pt), 2))); }
 
   void setPairDCA(float dca) { fPairDCA = dca; }
   float getPairDCA() const { return fPairDCA; }
@@ -226,6 +228,7 @@ class EMPair : public EMTrack
   float phi_cp() const { return std::atan2(fVy, fVx); }
 
  protected:
+  float fMass;
   float fPairDCA;
   ROOT::Math::PtEtaPhiMVector fVPos;
   ROOT::Math::PtEtaPhiMVector fVNeg;
@@ -234,6 +237,35 @@ class EMPair : public EMTrack
   float fVx;
   float fVy;
   float fVz;
+};
+
+class EMTrackUL // ultra-light track. Use this when you don't care charge or DCA. e.g. dilepton-hadron correlation.
+{
+ public:
+  EMTrackUL(float pt, float eta, float phi)
+  {
+    fPt = pt;
+    fEta = eta;
+    fPhi = phi;
+  }
+
+  ~EMTrackUL() {}
+
+  float pt() const { return fPt; }
+  float eta() const { return fEta; }
+  float phi() const { return fPhi; }
+
+  float p() const { return fPt * std::cosh(fEta); }
+  float px() const { return fPt * std::cos(fPhi); }
+  float py() const { return fPt * std::sin(fPhi); }
+  float pz() const { return fPt * std::sinh(fEta); }
+  float e(const float mass) const { return std::hypot(fPt * std::cosh(fEta), mass); } // e2 = p2 + m2
+  float rapidity(const float mass) const { return std::log((std::sqrt(std::pow(mass, 2) + std::pow(fPt * std::cosh(fEta), 2)) + fPt * std::sinh(fEta)) / std::sqrt(std::pow(mass, 2) + std::pow(fPt, 2))); }
+
+ protected:
+  float fPt;
+  float fEta;
+  float fPhi;
 };
 
 } // namespace o2::aod::pwgem::dilepton::utils
